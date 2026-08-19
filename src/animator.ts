@@ -1,4 +1,5 @@
 import type { AgentData, Animation, AnimationName, Frame } from "./types";
+import { SoundPlayer } from "./sound-player";
 
 export enum AnimatorState {
   Exited = "exited",
@@ -6,6 +7,12 @@ export enum AnimatorState {
 }
 
 type StateCallback = (animation: AnimationName, state: AnimatorState) => void;
+type Bounds = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+};
 
 export class Animator {
   readonly root: HTMLElement;
@@ -14,8 +21,10 @@ export class Animator {
 
   #data: AgentData;
   #spriteUrl: string;
-  #sounds: Record<string, HTMLAudioElement>;
+  #soundPlayer: SoundPlayer;
   #overlays: HTMLElement[] = [];
+  #spriteContext: CanvasRenderingContext2D | undefined;
+  #boundsCache = new Map<string, Bounds | undefined>();
   #currentAnimation: Animation | undefined;
   #currentAnimationName: string | undefined;
   #currentFrame: Frame | undefined;
@@ -30,15 +39,10 @@ export class Animator {
     this.#spriteUrl = spriteUrl;
     this.width = data.framesize[0];
     this.height = data.framesize[1];
-    this.#sounds = Object.fromEntries(
-      Object.entries(sounds).map(([key, value]) => {
-        const audio = new Audio(value);
-        audio.preload = "auto";
-        audio.load();
-        return [key, audio];
-      })
-    );
+    this.#soundPlayer = new SoundPlayer(root, sounds);
+    this.#setVisibleBounds({ left: 0, top: 0, right: this.width, bottom: this.height });
     this.#setupOverlays();
+    this.#loadSpriteImage();
   }
 
   animations(): string[] {
@@ -115,6 +119,7 @@ export class Animator {
 
   #draw(): void {
     const images = this.#currentFrame?.images ?? [];
+    const bounds: Bounds[] = [];
     this.#overlays.forEach((overlay, index) => {
       const coordinates = images[index];
       if (!coordinates) {
@@ -124,7 +129,92 @@ export class Animator {
 
       overlay.style.backgroundPosition = `${-coordinates[0]}px ${-coordinates[1]}px`;
       overlay.style.display = "block";
+      const overlayBounds = this.#boundsForCoordinates(coordinates);
+      if (overlayBounds) bounds.push(overlayBounds);
     });
+    this.#setVisibleBounds(this.#unionBounds(bounds));
+  }
+
+  #loadSpriteImage(): void {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      if (!context) return;
+
+      context.drawImage(image, 0, 0);
+      this.#spriteContext = context;
+      this.#boundsCache.clear();
+      this.#draw();
+    };
+    image.onerror = () => {
+      this.#spriteContext = undefined;
+    };
+    image.src = this.#spriteUrl;
+  }
+
+  #boundsForCoordinates(coordinates: [number, number]): Bounds | undefined {
+    const context = this.#spriteContext;
+    if (!context) return undefined;
+
+    const key = `${coordinates[0]},${coordinates[1]}`;
+    if (this.#boundsCache.has(key)) return this.#boundsCache.get(key);
+
+    try {
+      const data = context.getImageData(coordinates[0], coordinates[1], this.width, this.height).data;
+      let left = this.width;
+      let top = this.height;
+      let right = 0;
+      let bottom = 0;
+
+      for (let y = 0; y < this.height; y += 1) {
+        for (let x = 0; x < this.width; x += 1) {
+          const alpha = data[(y * this.width + x) * 4 + 3];
+          if (alpha === 0) continue;
+          left = Math.min(left, x);
+          top = Math.min(top, y);
+          right = Math.max(right, x + 1);
+          bottom = Math.max(bottom, y + 1);
+        }
+      }
+
+      const bounds = right > left && bottom > top ? { left, top, right, bottom } : undefined;
+      this.#boundsCache.set(key, bounds);
+      return bounds;
+    } catch {
+      this.#spriteContext = undefined;
+      this.#boundsCache.clear();
+      return undefined;
+    }
+  }
+
+  #unionBounds(bounds: Bounds[]): Bounds {
+    if (bounds.length === 0) {
+      return { left: 0, top: 0, right: this.width, bottom: this.height };
+    }
+
+    return bounds.reduce(
+      (union, current) => ({
+        left: Math.min(union.left, current.left),
+        top: Math.min(union.top, current.top),
+        right: Math.max(union.right, current.right),
+        bottom: Math.max(union.bottom, current.bottom)
+      }),
+      bounds[0] ?? { left: 0, top: 0, right: this.width, bottom: this.height }
+    );
+  }
+
+  #setVisibleBounds(bounds: Bounds): void {
+    this.root.style.setProperty("--clippy-visible-left", `${bounds.left}px`);
+    this.root.style.setProperty("--clippy-visible-top", `${bounds.top}px`);
+    this.root.style.setProperty("--clippy-visible-right", `${bounds.right}px`);
+    this.root.style.setProperty("--clippy-visible-bottom", `${bounds.bottom}px`);
+    this.root.style.setProperty("--clippy-visible-width", `${bounds.right - bounds.left}px`);
+    this.root.style.setProperty("--clippy-visible-height", `${bounds.bottom - bounds.top}px`);
+    this.root.style.setProperty("--clippy-visible-center-x", `${bounds.left + (bounds.right - bounds.left) / 2}px`);
+    this.root.style.setProperty("--clippy-visible-center-y", `${bounds.top + (bounds.bottom - bounds.top) / 2}px`);
   }
 
   #nextFrameIndex(): number | undefined {
@@ -155,24 +245,7 @@ export class Animator {
   #playSound(): void {
     const sound = this.#currentFrame?.sound;
     if (!sound) return;
-    const audio = this.#sounds[sound];
-    if (!audio) return;
-
-    const player = audio.cloneNode(true);
-    if (!(player instanceof HTMLAudioElement)) return;
-
-    player.currentTime = 0;
-    void player.play().catch((error: unknown) => {
-      this.root.dispatchEvent(
-        new CustomEvent("clippy:sound-error", {
-          detail: {
-            sound,
-            animation: this.#currentAnimationName,
-            error
-          }
-        })
-      );
-    });
+    this.#soundPlayer.play(sound, this.#currentAnimationName);
   }
 
   #step(): void {

@@ -1,21 +1,26 @@
-import { AgentAnimations, Agents, createClippy, type ClippyAgent } from "../../src";
+import {
+  AgentAnimations,
+  AgentIntents,
+  Agents,
+  BalloonPosition,
+  createClippy,
+  type ClippyAgent
+} from "../../src";
 
 const ALL_TARGET = "all";
+const GRID_COLUMNS = 5;
+const GRID_START_X = 80;
+const GRID_START_Y = 500;
+const GRID_SPACING_X = 230;
+const GRID_SPACING_Y = 180;
 const agentNames = Object.values(Agents);
 
 const targetSelect = requiredElement<HTMLSelectElement>("#target");
 const animationSelect = requiredElement<HTMLSelectElement>("#animation");
+const intentSelect = requiredElement<HTMLSelectElement>("#intent");
+const balloonPositionSelect = requiredElement<HTMLSelectElement>("#balloon-position");
 const messageInput = requiredElement<HTMLInputElement>("#message");
-const soundOverrideSelect = requiredElement<HTMLSelectElement>("#sound-override");
-const soundTestSelect = requiredElement<HTMLSelectElement>("#sound-test");
 const agentList = requiredElement<HTMLElement>("#agent-list");
-const status = requiredElement<HTMLElement>("#status");
-const demoSoundFormat = "mp3" as const;
-const clippySounds = await fetch(`/agents/Clippy/sounds-${demoSoundFormat}.json`, {
-  cache: "no-store"
-}).then((response) => response.json() as Promise<Record<string, string>>);
-
-status.textContent = `Sound format forced to ${demoSoundFormat.toUpperCase()}.`;
 
 let agents = new Map<Agents, ClippyAgent>();
 
@@ -32,17 +37,20 @@ for (const agentName of agentNames) {
   agentList.append(chip);
 }
 
-soundOverrideSelect.append(option("Original sound 10", ""));
-for (const id of Object.keys(clippySounds).sort((a, b) => Number(a) - Number(b))) {
-  soundOverrideSelect.append(option(`Use sound ${id}`, id));
-  soundTestSelect.append(option(`Clippy sound ${id}`, id));
-}
-soundTestSelect.value = "10";
-
 for (const animationName of Object.values(AgentAnimations)) {
   animationSelect.append(option(animationName, animationName));
 }
 animationSelect.value = AgentAnimations.GetAttention;
+
+for (const intent of Object.values(AgentIntents)) {
+  intentSelect.append(option(intent, intent));
+}
+intentSelect.value = AgentIntents.Arrive;
+
+for (const position of Object.values(BalloonPosition)) {
+  balloonPositionSelect.append(option(position, position));
+}
+balloonPositionSelect.value = BalloonPosition.Left;
 
 await loadAgents();
 
@@ -51,28 +59,27 @@ async function loadAgents(): Promise<void> {
     agent.destroy();
   }
 
-  const overrideId = soundOverrideSelect.value;
-  const overrideSound = overrideId ? clippySounds[overrideId] : undefined;
-  const soundMap = overrideSound ? { "10": overrideSound } : undefined;
   const agentEntries = await Promise.all(
     agentNames.map(async (agentName, index) => {
-      const columns = Math.min(5, agentNames.length);
-      const spacingX = 160;
-      const spacingY = 130;
       const options = {
         agent: agentName,
         assetsBaseUrl: "/agents/",
-        soundFormat: demoSoundFormat,
-        initialPosition: {
-          x: 80 + (index % columns) * spacingX,
-          y: 260 + Math.floor(index / columns) * spacingY
-        },
-        ...(agentName === Agents.Clippy && soundMap ? { soundMap } : {})
+        balloonPosition: BalloonPosition.Left,
+        initialPosition: gridPosition(index)
       };
       const agent = await createClippy(options);
 
       agent.element.addEventListener("clippy:sound-error", (event) => {
         console.warn(`${agentName} sound failed`, (event as CustomEvent).detail);
+      });
+      agent.element.addEventListener("clippy:balloon-action", (event) => {
+        const detail = (event as CustomEvent<{ action: { id?: string } }>).detail;
+        if (detail.action.id === "arrive") {
+          agent.perform(AgentIntents.Arrive);
+        }
+        if (detail.action.id === "go-away") {
+          agent.perform(AgentIntents.GoAway);
+        }
       });
       agent.show(true);
       return [agentName, agent] as const;
@@ -80,48 +87,42 @@ async function loadAgents(): Promise<void> {
   );
 
   agents = new Map<Agents, ClippyAgent>(agentEntries);
-  status.textContent = overrideId
-    ? `Sound format ${demoSoundFormat.toUpperCase()}; Clippy sound 10 remapped to ${overrideId}.`
-    : `Sound format ${demoSoundFormat.toUpperCase()}; Clippy sound 10 is original.`;
 }
 
 document.querySelector("#speak")?.addEventListener("click", () => {
   for (const agent of selectedAgents()) {
-    agent.speak(messageInput.value);
+    agent.speak(messageInput.value, {
+      balloonPosition: balloonPositionSelect.value as BalloonPosition,
+      actions: balloonActions(agent)
+    });
+  }
+});
+
+balloonPositionSelect.addEventListener("change", () => {
+  for (const agent of selectedAgents()) {
+    agent.setBalloonPosition(balloonPositionSelect.value as BalloonPosition);
   }
 });
 
 document.querySelector("#animate")?.addEventListener("click", () => {
   const animation = animationSelect.value;
-  for (const agent of selectedAgents()) {
-    agent.play(animation) || agent.animate();
+  const targets = selectedAgents();
+  for (const agent of targets) {
+    agent.play(animation);
   }
 });
 
-document.querySelector("#random")?.addEventListener("click", () => {
+document.querySelector("#perform")?.addEventListener("click", () => {
+  const intent = intentSelect.value as AgentIntents;
   for (const agent of selectedAgents()) {
-    agent.animate();
+    agent.perform(intent);
   }
-});
-
-document.querySelector("#scatter")?.addEventListener("click", () => {
-  selectedAgents().forEach((agent, index) => {
-    agent.moveTo(70 + index * 90, 520 + (index % 2) * 80);
-  });
 });
 
 document.querySelector("#stop")?.addEventListener("click", () => {
   for (const agent of selectedAgents()) {
     agent.stop();
   }
-});
-
-document.querySelector("#reload")?.addEventListener("click", () => {
-  void loadAgents();
-});
-
-document.querySelector("#play-sound")?.addEventListener("click", () => {
-  void playClippySound(soundTestSelect.value);
 });
 
 function selectedAgents(): ClippyAgent[] {
@@ -140,18 +141,25 @@ function option(label: string, value: string): HTMLOptionElement {
   return element;
 }
 
+function balloonActions(agent: ClippyAgent): Array<{ id: string; label: string }> {
+  const intents = new Set(agent.intents());
+  const actions = [{ id: "arrive", label: "Arrive" }];
+  if (intents.has(AgentIntents.GoAway)) {
+    actions.push({ id: "go-away", label: "Go away" });
+  }
+  return actions;
+}
+
+function gridPosition(index: number): { x: number; y: number } {
+  const columns = Math.min(GRID_COLUMNS, agentNames.length);
+  return {
+    x: GRID_START_X + (index % columns) * GRID_SPACING_X,
+    y: GRID_START_Y + Math.floor(index / columns) * GRID_SPACING_Y
+  };
+}
+
 function requiredElement<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
   if (!element) throw new Error(`Demo control ${selector} is missing from the page.`);
   return element;
-}
-
-async function playClippySound(id: string): Promise<void> {
-  const source = clippySounds[id];
-  if (!source) throw new Error(`Clippy sound ${id} is missing.`);
-
-  const audio = new Audio(source);
-  audio.volume = 1;
-  await audio.play();
-  status.textContent = `Played Clippy sound ${id} from ${demoSoundFormat.toUpperCase()} map.`;
 }

@@ -23,11 +23,10 @@
 
 .clippy-balloon {
   position: absolute;
-  right: 100%;
-  bottom: 85%;
+  right: calc(100% - var(--clippy-visible-left, 0px) + var(--clippy-balloon-offset-x, 10px));
+  top: var(--clippy-visible-center-y, 50%);
   min-width: 160px;
   max-width: 280px;
-  margin-right: 12px;
   padding: 10px 12px;
   border: 1px solid #111;
   border-radius: 7px;
@@ -35,6 +34,30 @@
   color: #111;
   font: 13px/1.35 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+  transform: translateY(-50%);
+}
+
+.clippy-balloon[data-position="right"] {
+  right: auto;
+  left: calc(var(--clippy-visible-right, 100%) + var(--clippy-balloon-offset-x, 10px));
+  top: var(--clippy-visible-center-y, 50%);
+  transform: translateY(-50%);
+}
+
+.clippy-balloon[data-position="top"] {
+  right: auto;
+  left: var(--clippy-visible-center-x, 50%);
+  top: auto;
+  bottom: calc(100% - var(--clippy-visible-top, 0px) + var(--clippy-balloon-offset-y, 10px));
+  transform: translateX(-50%);
+}
+
+.clippy-balloon[data-position="bottom"] {
+  right: auto;
+  left: var(--clippy-visible-center-x, 50%);
+  top: calc(var(--clippy-visible-bottom, 100%) + var(--clippy-balloon-offset-y, 10px));
+  bottom: auto;
+  transform: translateX(-50%);
 }
 
 .clippy-balloon[hidden] {
@@ -44,16 +67,86 @@
 .clippy-balloon::after {
   position: absolute;
   right: -8px;
-  bottom: 12px;
+  top: 50%;
   width: 14px;
   height: 14px;
   border-top: 1px solid #111;
   border-right: 1px solid #111;
   background: #ffffd5;
   content: "";
-  transform: rotate(45deg);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.clippy-balloon[data-position="right"]::after {
+  right: auto;
+  left: -8px;
+  top: 50%;
+  border-right: 0;
+  border-left: 1px solid #111;
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+.clippy-balloon[data-position="top"]::after {
+  right: auto;
+  left: 50%;
+  top: auto;
+  bottom: -8px;
+  border-top: 0;
+  border-right: 1px solid #111;
+  border-bottom: 1px solid #111;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.clippy-balloon[data-position="bottom"]::after {
+  right: auto;
+  left: 50%;
+  top: -8px;
+  bottom: auto;
+  border-top: 1px solid #111;
+  border-right: 0;
+  border-left: 1px solid #111;
+  transform: translateX(-50%) rotate(45deg);
 }
 
 .clippy-balloon-text {
   overflow-wrap: anywhere;
+}
+
+.clippy-balloon-actions {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.clippy-balloon-actions[hidden] {
+  display: none !important;
+}
+
+.clippy-balloon-action {
+  position: relative;
+  min-height: 0;
+  padding: 0 0 0 14px;
+  border: 0;
+  background: transparent;
+  color: #003399;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.clippy-balloon-action::before {
+  position: absolute;
+  left: 2px;
+  top: 0.58em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #003399;
+  content: "";
+}
+
+.clippy-balloon-action:hover,
+.clippy-balloon-action:focus-visible {
+  color: #0000cc;
 }

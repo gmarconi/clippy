@@ -17,3 +17,39 @@ The script:
 The original Clippit ACS contains 15 sound chunks, matching the web export's 15 sound IDs. Some clips are intentionally very short or quiet; Clippy sound `10` maps to one of those quiet attention ticks, so a faithful re-export preserves that behavior.
 
 The script does not download or commit original Microsoft character files.
+
+## Mapping Extracted Sounds
+
+Extracted chunks are not guaranteed to be in the same order as ClippyJS sound IDs. To map by similarity against an existing sound map:
+
+```bash
+node scripts/map-extracted-sounds.mjs \
+  public/agents/Clippy/sounds-mp3.json \
+  /tmp/clippit-sounds \
+  /tmp/clippit-mapped/sounds-mp3.json
+```
+
+The mapper decodes both sides to PCM, compares duration, RMS, peak level, zero crossing rate, and a coarse amplitude envelope, then writes:
+
+```text
+/tmp/clippit-mapped/sounds-mp3.json
+/tmp/clippit-mapped/sounds-mp3.mapping.json
+```
+
+After reviewing the mapping, copy the mapped sound map into the repo:
+
+```bash
+cp /tmp/clippit-mapped/sounds-mp3.json public/agents/Clippy/sounds-mp3.json
+```
+
+The current Clippy MP3 map was generated this way from `CLIPPIT.ACS`. The mapping report is committed at [clippy-sound-map-from-acs.json](clippy-sound-map-from-acs.json).
+
+## Enhanced Attention Clip
+
+Clippy's original sound `10` is a very short, quiet tick. The browser demo uses an explicit override from:
+
+```text
+public/agents/Clippy/sound-overrides.json
+```
+
+That enhanced clip is derived from the extracted ACS tick by amplification and short padding; it is not copied from any reference video. The base `sounds-mp3.json` remains the similarity-mapped ACS export.

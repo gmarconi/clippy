@@ -31,8 +31,8 @@ function preferredSoundFormat(format: SoundFormat = "auto"): "mp3" | "ogg" | und
   if (format === "mp3" || format === "ogg") return format;
 
   const audio = document.createElement("audio");
-  if (audio.canPlayType?.("audio/mpeg")) return "mp3";
   if (audio.canPlayType?.('audio/ogg; codecs="vorbis"')) return "ogg";
+  if (audio.canPlayType?.("audio/mpeg")) return "mp3";
   return undefined;
 }
 

@@ -1,8 +1,11 @@
-import type { Agents } from "./enums";
+import type { AgentIntents, Agents, BalloonPosition } from "./enums";
 
 export type AgentName = Agents | `${Agents}` | (string & {});
+export type AgentIntentName = AgentIntents | `${AgentIntents}`;
+export type BalloonPlacement = BalloonPosition | `${BalloonPosition}`;
 export type AnimationName = string;
 export type SoundFormat = "auto" | "mp3" | "ogg";
+export type AgentIntentMap = Partial<Record<string, AnimationName>>;
 
 export interface Branch {
   frameIndex: number;
@@ -45,8 +48,14 @@ export interface CreateClippyOptions {
   sounds?: boolean;
   soundFormat?: SoundFormat;
   soundMap?: Record<string, string>;
+  intentMap?: AgentIntentMap;
   stopOnNewAction?: boolean;
   draggable?: boolean;
+  balloonPosition?: BalloonPlacement;
+  balloonOffset?: {
+    x?: number;
+    y?: number;
+  };
   className?: string;
   initialPosition?: {
     x: number;
@@ -58,6 +67,22 @@ export interface MoveOptions {
   duration?: number;
 }
 
+export interface PerformOptions {
+  timeout?: number;
+}
+
+export interface BalloonAction {
+  id?: string;
+  label: string;
+  onClick?: (action: BalloonAction, event: MouseEvent) => void;
+}
+
 export interface SpeakOptions {
   hold?: number;
+  actions?: BalloonAction[];
+  balloonPosition?: BalloonPlacement;
+  balloonOffset?: {
+    x?: number;
+    y?: number;
+  };
 }

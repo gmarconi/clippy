@@ -16,7 +16,7 @@
 
       main {
         display: grid;
-        max-width: 980px;
+        max-width: 1180px;
         padding: 32px;
         gap: 18px;
       }
@@ -28,10 +28,22 @@
 
       .toolbar {
         display: grid;
-        grid-template-columns: repeat(4, minmax(140px, 1fr));
+        grid-template-columns: repeat(4, minmax(180px, 1fr));
         gap: 12px;
+        align-items: stretch;
+        max-width: 1040px;
+      }
+
+      .control-group {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
         align-items: end;
-        max-width: 900px;
+      }
+
+      .control-group-wide {
+        grid-column: span 2;
+        grid-template-columns: minmax(180px, 1fr) minmax(120px, 180px) auto;
       }
 
       label {
@@ -64,18 +76,15 @@
 
       .agent-list {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 8px;
-        max-width: 900px;
-      }
-
-      .status {
-        max-width: 900px;
-        font-size: 13px;
-        color: #4d4d46;
+        max-width: 1040px;
+        overflow-x: auto;
+        padding-bottom: 2px;
       }
 
       .agent-chip {
+        flex: 0 0 auto;
         padding: 5px 8px;
         border: 1px solid #c6c6bb;
         border-radius: 999px;
@@ -87,43 +96,51 @@
         .toolbar {
           grid-template-columns: 1fr;
         }
+
+        .control-group,
+        .control-group-wide {
+          grid-column: auto;
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
     <main>
       <h1>Modern Clippy</h1>
-      <div class="toolbar">
-        <label>
-          Target
-          <select id="target"></select>
-        </label>
-        <label>
-          Animation
-          <select id="animation"></select>
-        </label>
-        <label>
-          Message
-          <input id="message" value="Everything here is loaded locally." />
-        </label>
-        <label>
-          Clippy 10 Override
-          <select id="sound-override"></select>
-        </label>
-        <button id="speak" type="button">Speak</button>
-        <button id="animate" type="button">Animate</button>
-        <button id="random" type="button">Random</button>
-        <button id="scatter" type="button">Scatter</button>
-        <button id="stop" type="button">Stop</button>
-        <button id="reload" type="button">Reload Agents</button>
-        <label>
-          Test Sound
-          <select id="sound-test"></select>
-        </label>
-        <button id="play-sound" type="button">Play Sound</button>
-      </div>
-      <div id="status" class="status"></div>
+      <label>
+        Target
+        <select id="target"></select>
+      </label>
       <div id="agent-list" class="agent-list" aria-label="Loaded agents"></div>
+      <div class="toolbar">
+        <div class="control-group">
+          <label>
+            Animation
+            <select id="animation"></select>
+          </label>
+          <button id="animate" type="button">Animate</button>
+        </div>
+        <div class="control-group">
+          <label>
+            Intent
+            <select id="intent"></select>
+          </label>
+          <button id="perform" type="button">Perform</button>
+        </div>
+        <div class="control-group control-group-wide">
+          <label>
+            Message
+            <input id="message" value="Hello World!" />
+          </label>
+          <label>
+            Balloon
+            <select id="balloon-position"></select>
+          </label>
+          <button id="speak" type="button">Speak</button>
+        </div>
+        <button id="stop" type="button">Stop</button>
+      </div>
     </main>
     <script type="module" src="./main.ts"></script>
   </body>

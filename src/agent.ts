@@ -1,8 +1,19 @@
 import { AgentAnimations, Agents } from "./enums";
 import { Animator, AnimatorState } from "./animator";
-import { Balloon } from "./balloon";
+import { Balloon, type BalloonOptions } from "./balloon";
+import { defaultIntentMapForAgent } from "./intents";
 import { TaskQueue } from "./queue";
-import type { AgentName, AnimationName, CreateClippyOptions, MoveOptions, SpeakOptions } from "./types";
+import type {
+  AgentIntentMap,
+  AgentIntentName,
+  AgentName,
+  AnimationName,
+  BalloonPlacement,
+  CreateClippyOptions,
+  MoveOptions,
+  PerformOptions,
+  SpeakOptions
+} from "./types";
 import { delay } from "./utils";
 
 const IDLE_PREFIX = "Idle";
@@ -14,6 +25,7 @@ export class ClippyAgent {
   #animator: Animator;
   #balloon: Balloon;
   #queue: TaskQueue;
+  #intentMap: AgentIntentMap;
   #hidden = true;
   #destroyed = false;
   #stopOnNewAction: boolean;
@@ -33,8 +45,12 @@ export class ClippyAgent {
     this.name = name;
     this.#animator = animator;
     this.element = animator.root;
-    this.#balloon = new Balloon(this.element);
+    const balloonOptions: BalloonOptions = {};
+    if (options.balloonPosition) balloonOptions.position = options.balloonPosition;
+    if (options.balloonOffset) balloonOptions.offset = options.balloonOffset;
+    this.#balloon = new Balloon(this.element, balloonOptions);
     this.#queue = new TaskQueue(() => this.#onQueueEmpty());
+    this.#intentMap = { ...defaultIntentMapForAgent(name), ...(options.intentMap ?? {}) };
     this.#stopOnNewAction = options.stopOnNewAction ?? true;
     this.#draggable = options.draggable ?? true;
 
@@ -89,7 +105,7 @@ export class ClippyAgent {
     if (!this.hasAnimation(animation)) return false;
     this.#prepareForAction();
 
-    const timeout = options.timeout ?? 5000;
+    const timeout = options.timeout ?? 0;
     this.#queue.add(
       () =>
         new Promise<void>((resolve) => {
@@ -120,6 +136,12 @@ export class ClippyAgent {
     return animation ? this.play(animation) : false;
   }
 
+  perform(intent: AgentIntentName, options?: PerformOptions): boolean {
+    this.#assertAlive();
+    const animation = this.#intentMap[intent];
+    return animation ? this.play(animation, options) : false;
+  }
+
   speak(text: string, options?: SpeakOptions): void {
     this.#assertAlive();
     this.#prepareForAction();
@@ -128,6 +150,10 @@ export class ClippyAgent {
 
   closeBalloon(): void {
     this.#balloon.close();
+  }
+
+  setBalloonPosition(position: BalloonPlacement, offset?: { x?: number; y?: number }): void {
+    this.#balloon.setPosition(position, offset);
   }
 
   delay(ms = 250): void {
@@ -181,6 +207,7 @@ export class ClippyAgent {
     this.#queue.clear();
     this.#animator.stop();
     this.#balloon.hide();
+    this.#showRestPose();
   }
 
   hasAnimation(name: AnimationName): boolean {
@@ -189,6 +216,10 @@ export class ClippyAgent {
 
   animations(): string[] {
     return this.#animator.animations();
+  }
+
+  intents(): string[] {
+    return Object.keys(this.#intentMap);
   }
 
   destroy(): void {
@@ -261,6 +292,10 @@ export class ClippyAgent {
   };
 
   #onQueueEmpty(): void {
+    this.#showRestPose();
+  }
+
+  #showRestPose(): void {
     if (this.#hidden || this.#destroyed) return;
     const idleAnimations = this.animations().filter((name) => name.startsWith(IDLE_PREFIX));
     const rest = this.hasAnimation(AgentAnimations.RestPose) ? AgentAnimations.RestPose : idleAnimations[0];

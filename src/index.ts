@@ -5,17 +5,23 @@ import type { AssetLoader, CreateClippyOptions } from "./types";
 import { isBrowser } from "./utils";
 
 export { ClippyAgent } from "./agent";
-export { AgentAnimations, Agents } from "./enums";
+export { AgentAnimations, AgentIntents, Agents, BalloonPosition } from "./enums";
+export { bundledAgentIntentMap } from "./intents";
 export type {
   AgentData,
+  AgentIntentMap,
+  AgentIntentName,
   AgentName,
   Animation,
   AnimationName,
+  BalloonAction,
+  BalloonPlacement,
   AssetLoader,
   Branch,
   CreateClippyOptions,
   Frame,
   MoveOptions,
+  PerformOptions,
   SoundFormat,
   SpeakOptions
 } from "./types";

@@ -1,0 +1,137 @@
+[
+  {
+    "currentId": "1",
+    "extractedId": "10",
+    "score": 0.74,
+    "currentDuration": 0.8359183673469388,
+    "extractedDuration": 0.7336054421768707,
+    "currentRms": 0.019882,
+    "extractedRms": 0.021812
+  },
+  {
+    "currentId": "2",
+    "extractedId": "8",
+    "score": 1.8096,
+    "currentDuration": 0.5746938775510204,
+    "extractedDuration": 0.44625850340136053,
+    "currentRms": 0.046232,
+    "extractedRms": 0.050688
+  },
+  {
+    "currentId": "3",
+    "extractedId": "14",
+    "score": 1.7248,
+    "currentDuration": 0.5746938775510204,
+    "extractedDuration": 0.44625850340136053,
+    "currentRms": 0.095063,
+    "extractedRms": 0.114909
+  },
+  {
+    "currentId": "4",
+    "extractedId": "15",
+    "score": 1.021,
+    "currentDuration": 0.7836734693877551,
+    "extractedDuration": 0.6552380952380953,
+    "currentRms": 0.012056,
+    "extractedRms": 0.013546
+  },
+  {
+    "currentId": "5",
+    "extractedId": "12",
+    "score": 1.4287,
+    "currentDuration": 0.47020408163265304,
+    "extractedDuration": 0.367891156462585,
+    "currentRms": 0.018775,
+    "extractedRms": 0.021341
+  },
+  {
+    "currentId": "6",
+    "extractedId": "3",
+    "score": 2.0435,
+    "currentDuration": 0.6008163265306122,
+    "extractedDuration": 0.5507482993197279,
+    "currentRms": 0.026291,
+    "extractedRms": 0.028519
+  },
+  {
+    "currentId": "7",
+    "extractedId": "13",
+    "score": 1.2823,
+    "currentDuration": 0.7314285714285714,
+    "extractedDuration": 0.6291156462585034,
+    "currentRms": 0.014817,
+    "extractedRms": 0.016077
+  },
+  {
+    "currentId": "8",
+    "extractedId": "6",
+    "score": 2.5954,
+    "currentDuration": 0.2612244897959184,
+    "extractedDuration": 0.1327891156462585,
+    "currentRms": 0.019961,
+    "extractedRms": 0.029714
+  },
+  {
+    "currentId": "9",
+    "extractedId": "7",
+    "score": 1.3754,
+    "currentDuration": 0.626938775510204,
+    "extractedDuration": 0.4985034013605442,
+    "currentRms": 0.007941,
+    "extractedRms": 0.008166
+  },
+  {
+    "currentId": "10",
+    "extractedId": "1",
+    "score": 3.7474,
+    "currentDuration": 0.2089795918367347,
+    "extractedDuration": 0.08054421768707483,
+    "currentRms": 0.005599,
+    "extractedRms": 0.008832
+  },
+  {
+    "currentId": "11",
+    "extractedId": "11",
+    "score": 1.1593,
+    "currentDuration": 0.626938775510204,
+    "extractedDuration": 0.5246258503401361,
+    "currentRms": 0.004188,
+    "extractedRms": 0.0044
+  },
+  {
+    "currentId": "12",
+    "extractedId": "4",
+    "score": 3.0407,
+    "currentDuration": 0.2612244897959184,
+    "extractedDuration": 0.1327891156462585,
+    "currentRms": 0.010839,
+    "extractedRms": 0.016145
+  },
+  {
+    "currentId": "13",
+    "extractedId": "5",
+    "score": 2.5295,
+    "currentDuration": 0.2612244897959184,
+    "extractedDuration": 0.1327891156462585,
+    "currentRms": 0.027257,
+    "extractedRms": 0.04006
+  },
+  {
+    "currentId": "14",
+    "extractedId": "9",
+    "score": 2.0251,
+    "currentDuration": 0.47020408163265304,
+    "extractedDuration": 0.3417687074829932,
+    "currentRms": 0.053463,
+    "extractedRms": 0.066568
+  },
+  {
+    "currentId": "15",
+    "extractedId": "2",
+    "score": 2.0919,
+    "currentDuration": 0.156734693877551,
+    "extractedDuration": 0.05442176870748299,
+    "currentRms": 0,
+    "extractedRms": 0
+  }
+]
