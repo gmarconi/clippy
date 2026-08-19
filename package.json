@@ -1,0 +1,50 @@
+{
+  "name": "@local/clippy",
+  "version": "0.1.0",
+  "description": "A modern, framework-agnostic Clippy runtime with local assets and no jQuery.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist",
+    "public/agents/**/agent.json",
+    "public/agents/**/sounds-mp3.json",
+    "public/agents/**/sounds-ogg.json",
+    "public/agents/**/map.png",
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --clean && cp src/style.css dist/style.css",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dev": "vite --host 127.0.0.1",
+    "preview": "vite --host 127.0.0.1"
+  },
+  "keywords": [
+    "clippy",
+    "assistant",
+    "esm",
+    "typescript"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.46.0",
+    "jsdom": "^24.1.1",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.11"
+  },
+  "overrides": {
+    "esbuild": "^0.28.0"
+  }
+}
