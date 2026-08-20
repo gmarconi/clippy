@@ -1,7 +1,15 @@
 {
-  "name": "@local/clippy",
+  "name": "@gmarconi/clippy",
   "version": "0.1.0",
   "description": "A modern, framework-agnostic Clippy runtime with local assets and no jQuery.",
+  "homepage": "https://gmarconi.github.io/clippy/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gmarconi/clippy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gmarconi/clippy/issues"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -17,6 +25,7 @@
   "files": [
     "dist",
     "public/agents/**/agent.json",
+    "public/agents/**/sound-overrides.json",
     "public/agents/**/sounds-mp3.json",
     "public/agents/**/sounds-ogg.json",
     "public/agents/**/map.png",
@@ -24,10 +33,12 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --clean && cp src/style.css dist/style.css",
+    "build:demo": "vite build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --root .",
     "dev": "vite --host 127.0.0.1",
-    "preview": "vite --host 127.0.0.1"
+    "preview": "vite --host 127.0.0.1",
+    "preview:demo": "vite preview --host 127.0.0.1"
   },
   "keywords": [
     "clippy",

@@ -42,7 +42,7 @@ export interface AssetLoader {
 
 export interface CreateClippyOptions {
   agent?: AgentName;
-  assetsBaseUrl: string;
+  assetsBaseUrl?: string;
   container?: HTMLElement;
   id?: string;
   sounds?: boolean;

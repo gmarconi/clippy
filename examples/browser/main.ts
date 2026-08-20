@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import {
   AgentAnimations,
   AgentIntents,
@@ -8,6 +10,7 @@ import {
 } from "../../src";
 
 const ALL_TARGET = "all";
+const ASSETS_BASE_URL = `${import.meta.env.BASE_URL}agents/`;
 const GRID_COLUMNS = 5;
 const GRID_START_X = 80;
 const GRID_START_Y = 500;
@@ -63,8 +66,7 @@ async function loadAgents(): Promise<void> {
     agentNames.map(async (agentName, index) => {
       const options = {
         agent: agentName,
-        assetsBaseUrl: "/agents/",
-        balloonPosition: BalloonPosition.Left,
+        assetsBaseUrl: ASSETS_BASE_URL,
         initialPosition: gridPosition(index)
       };
       const agent = await createClippy(options);

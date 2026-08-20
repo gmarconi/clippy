@@ -43,13 +43,3 @@ cp /tmp/clippit-mapped/sounds-mp3.json public/agents/Clippy/sounds-mp3.json
 ```
 
 The current Clippy MP3 map was generated this way from `CLIPPIT.ACS`. The mapping report is committed at [clippy-sound-map-from-acs.json](clippy-sound-map-from-acs.json).
-
-## Enhanced Attention Clip
-
-Clippy's original sound `10` is a very short, quiet tick. The browser demo uses an explicit override from:
-
-```text
-public/agents/Clippy/sound-overrides.json
-```
-
-That enhanced clip is derived from the extracted ACS tick by amplification and short padding; it is not copied from any reference video. The base `sounds-mp3.json` remains the similarity-mapped ACS export.

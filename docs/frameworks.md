@@ -6,8 +6,8 @@ The core runtime is framework-agnostic. Mount an agent after the component is in
 
 ```tsx
 import { useEffect, useRef } from "react";
-import { Agents, createClippy, type ClippyAgent } from "@local/clippy";
-import "@local/clippy/style.css";
+import { createClippy, type ClippyAgent } from "@gmarconi/clippy";
+import "@gmarconi/clippy/style.css";
 
 export function ClippyWidget() {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -17,11 +17,7 @@ export function ClippyWidget() {
     let cancelled = false;
 
     void createClippy({
-      agent: Agents.Clippy,
-      container: hostRef.current ?? document.body,
-      assetsBaseUrl: "/agents/",
-      stopOnNewAction: true,
-      draggable: true
+      container: hostRef.current ?? document.body
     }).then((loaded) => {
       if (cancelled) {
         loaded.destroy();
@@ -46,8 +42,8 @@ export function ClippyWidget() {
 ```vue
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
-import { Agents, createClippy, type ClippyAgent } from "@local/clippy";
-import "@local/clippy/style.css";
+import { createClippy, type ClippyAgent } from "@gmarconi/clippy";
+import "@gmarconi/clippy/style.css";
 
 const host = ref<HTMLElement | null>(null);
 let agent: ClippyAgent | undefined;
@@ -55,11 +51,7 @@ let cancelled = false;
 
 onMounted(async () => {
   const loaded = await createClippy({
-    agent: Agents.Clippy,
-    container: host.value ?? document.body,
-    assetsBaseUrl: "/agents/",
-    stopOnNewAction: true,
-    draggable: true
+    container: host.value ?? document.body
   });
 
   if (cancelled) {
@@ -87,8 +79,8 @@ onUnmounted(() => {
 ```svelte
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Agents, createClippy, type ClippyAgent } from "@local/clippy";
-  import "@local/clippy/style.css";
+  import { createClippy, type ClippyAgent } from "@gmarconi/clippy";
+  import "@gmarconi/clippy/style.css";
 
   let host: HTMLDivElement;
 
@@ -97,11 +89,7 @@ onUnmounted(() => {
     let cancelled = false;
 
     void createClippy({
-      agent: Agents.Clippy,
-      container: host,
-      assetsBaseUrl: "/agents/",
-      stopOnNewAction: true,
-      draggable: true
+      container: host
     }).then((loaded) => {
       if (cancelled) {
         loaded.destroy();

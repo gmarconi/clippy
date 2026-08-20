@@ -4,6 +4,8 @@ import { defaultAssetLoader } from "./loader";
 import type { AssetLoader, CreateClippyOptions } from "./types";
 import { isBrowser } from "./utils";
 
+const defaultAssetsBaseUrl = "/agents/";
+
 export { ClippyAgent } from "./agent";
 export { AgentAnimations, AgentIntents, Agents, BalloonPosition } from "./enums";
 export { bundledAgentIntentMap } from "./intents";
@@ -27,7 +29,7 @@ export type {
 } from "./types";
 
 export async function createClippy(
-  options: CreateClippyOptions,
+  options: CreateClippyOptions = {},
   loader: AssetLoader = defaultAssetLoader
 ): Promise<ClippyAgent> {
   if (!isBrowser()) {
@@ -36,12 +38,13 @@ export async function createClippy(
 
   const agent = options.agent ?? DefaultAgent;
   const container = options.container ?? document.body;
+  const assetsBaseUrl = options.assetsBaseUrl ?? defaultAssetsBaseUrl;
   const [data, spriteUrl, loadedSounds] = await Promise.all([
-    loader.loadAgentData(agent, options.assetsBaseUrl),
-    loader.loadSprite(agent, options.assetsBaseUrl),
+    loader.loadAgentData(agent, assetsBaseUrl),
+    loader.loadSprite(agent, assetsBaseUrl),
     options.sounds === false
       ? Promise.resolve({})
-      : loader.loadSounds(agent, options.assetsBaseUrl, options.soundFormat)
+      : loader.loadSounds(agent, assetsBaseUrl, options.soundFormat)
   ]);
   const sounds = { ...loadedSounds, ...options.soundMap };
 
