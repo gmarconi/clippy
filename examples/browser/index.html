@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Modern Clippy</title>
+    <title>Clippy for Modern Browsers</title>
     <link rel="stylesheet" href="../../src/style.css" />
     <style>
       body {
@@ -21,29 +21,45 @@
         gap: 18px;
       }
 
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        max-width: 1040px;
+      }
+
       h1 {
         margin: 0;
         font-size: 28px;
       }
 
+      .github-link {
+        color: #0847a6;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .github-link:hover {
+        text-decoration: underline;
+      }
+
       .toolbar {
         display: grid;
-        grid-template-columns: repeat(4, minmax(180px, 1fr));
-        gap: 12px;
-        align-items: stretch;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
         max-width: 1040px;
       }
 
       .control-group {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, 1fr);
         gap: 8px;
-        align-items: end;
+        align-items: stretch;
       }
 
       .control-group-wide {
-        grid-column: span 2;
-        grid-template-columns: minmax(180px, 1fr) minmax(120px, 180px) auto;
+        grid-template-columns: minmax(0, 1fr);
       }
 
       label {
@@ -74,6 +90,13 @@
         cursor: pointer;
       }
 
+      .command-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: end;
+      }
+
       .agent-list {
         display: flex;
         flex-wrap: nowrap;
@@ -93,13 +116,16 @@
       }
 
       @media (max-width: 760px) {
-        .toolbar {
-          grid-template-columns: 1fr;
+        main {
+          padding: 20px;
         }
 
-        .control-group,
-        .control-group-wide {
-          grid-column: auto;
+        .page-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .command-row {
           grid-template-columns: 1fr;
         }
       }
@@ -107,7 +133,10 @@
   </head>
   <body>
     <main>
-      <h1>Modern Clippy</h1>
+      <header class="page-header">
+        <h1>Clippy for Modern Browsers</h1>
+        <a class="github-link" href="https://github.com/gmarconi/clippy">GitHub</a>
+      </header>
       <label>
         Target
         <select id="target"></select>
@@ -115,29 +144,35 @@
       <div id="agent-list" class="agent-list" aria-label="Loaded agents"></div>
       <div class="toolbar">
         <div class="control-group">
-          <label>
-            Animation
-            <select id="animation"></select>
-          </label>
-          <button id="animate" type="button">Animate</button>
+          <div class="command-row">
+            <label>
+              Animation
+              <select id="animation"></select>
+            </label>
+            <button id="animate" type="button">Animate</button>
+          </div>
         </div>
         <div class="control-group">
-          <label>
-            Intent
-            <select id="intent"></select>
-          </label>
-          <button id="perform" type="button">Perform</button>
+          <div class="command-row">
+            <label>
+              Intent
+              <select id="intent"></select>
+            </label>
+            <button id="perform" type="button">Perform</button>
+          </div>
         </div>
         <div class="control-group control-group-wide">
           <label>
             Message
             <input id="message" value="Hello World!" />
           </label>
-          <label>
-            Balloon
-            <select id="balloon-position"></select>
-          </label>
-          <button id="speak" type="button">Speak</button>
+          <div class="command-row">
+            <label>
+              Balloon
+              <select id="balloon-position"></select>
+            </label>
+            <button id="speak" type="button">Speak</button>
+          </div>
         </div>
         <button id="stop" type="button">Stop</button>
       </div>
